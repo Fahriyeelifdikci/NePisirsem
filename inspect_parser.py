@@ -24,11 +24,11 @@ print("\nTemizlik sonrası en sık 40 ad:")
 for name, count in Counter(clean_names).most_common(40):
     print(f"{count:5d}  {name}")
 
-print("\nHâlâ boş kalanlardan 15 örnek (ham hali):")
-shown = 0
-for raw, clean in zip(raw_names, clean_names):
-    if clean == "":
-        print("  ", raw)
-        shown += 1
-        if shown == 15:
-            break
+# Çok kelimeli adların ilk kelimesi: sıfat adayları
+first_words = Counter(
+    name.split()[0] for name in clean_names if len(name.split()) > 1
+)
+
+print("\nÇok kelimeli adlarda en sık 40 İLK kelime:")
+for word, count in first_words.most_common(40):
+    print(f"{count:5d}  {word}")
