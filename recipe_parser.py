@@ -98,4 +98,17 @@ def parse_ingredient(line):
             name = rest[len(unit):].strip()      #   birimden sonrası = ad
             return amount, unit, name
 
-    return amount, None, rest                    # birim bulunamadıysa
+    return amount, None, rest       
+
+# --- Ad temizleme ---
+PARENS = re.compile(r"\(.*?\)")
+
+def clean_name(name):
+    """Malzeme adını aramaya uygun hale getirir.
+    "İzmir tulum peyniri(rendelenmiş)" → "izmir tulum peyniri"
+    "(10 gram) kabartma tozu"          → "kabartma tozu"
+    """
+    name = PARENS.sub("", name)                               # kapanmış (...) parçalarını sil
+    name = name.split("(")[0]                                 # kapanmamış parantez kaldıysa sonrasını at
+    name = name.replace("İ", "i").replace("I", "ı").lower()   # Türkçe küçük harf
+    return name.strip()
