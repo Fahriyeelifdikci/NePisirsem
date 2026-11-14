@@ -2,6 +2,7 @@ import re
 from pathlib import Path
 from datasets import load_dataset
 from nepisirsem.recipe_parser import extract_ingredient_lines, parse_ingredient, clean_name
+from nepisirsem.synonyms import canonical
 
 TITLE = re.compile(r"([^\n]+?) Tarifi Nasıl Yapılır\?")
 
@@ -11,7 +12,7 @@ def ingredient_names(lines):
     names = []
     for line in lines:
         amount, unit, name = parse_ingredient(line)
-        name = clean_name(name)
+        name = canonical(clean_name(name))
         if name:
             names.append(name)
     return list(dict.fromkeys(names))

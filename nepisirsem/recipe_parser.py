@@ -113,7 +113,7 @@ PARENS = re.compile(r"\(.*?\)")
 SIZES = ("orta boy", "küçük boy", "büyük boy")   # veride boşluksuz da geliyor: "orta boysoğan"
 PREP_WORDS = (
     "orta", "küçük", "büyük",
-    "ılık", "sıcak", "soğuk", "oda sıcaklığında",
+    "ılık", "sıcak", "soğuk", "kaynar", "oda sıcaklığında",
     "rendelenmiş", "haşlanmış", "eritilmiş", "olgun",
 )
 
@@ -143,4 +143,5 @@ def clean_name(name):
     name = PARENS.sub("", name)                               # kapanmış (...) parçalarını sil
     name = name.split("(")[0]                                 # kapanmamış parantez kaldıysa sonrasını at
     name = name.replace("İ", "i").replace("I", "ı").lower()   # Türkçe küçük harf
+    name = name.split(" veya ")[0]                            # "tereyağı veya margarin" → ilk seçenek
     return strip_prep_words(name.strip())

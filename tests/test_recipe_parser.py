@@ -54,6 +54,9 @@ def test_parse_ingredient(line, expected):
     ("büyük boykuru soğan", "kuru soğan"),
     ("oda sıcaklığında tereyağı", "tereyağı"),
     ("boyoz", "boyoz"),
+    ("kaynar su", "su"),
+    ("tereyağı veya margarin", "tereyağı"),
+    ("Margarin(veya tereyağı)", "margarin"),
     ("ortanca", "ortanca"),])
 def test_clean_name(raw, expected):
     assert clean_name(raw) == expected
