@@ -1,34 +1,15 @@
-from collections import Counter
-from datasets import load_dataset
-from recipe_parser import extract_ingredient_lines, parse_ingredient, clean_name
+import pandas as pd
+from recipe_parser import extract_ingredient_lines
 
-df = load_dataset("habanoz/yemek_tarif_24k_text")["train"].to_pandas()
-df["raw_ingredients"] = df["text"].apply(extract_ingredient_lines)
-all_lines = [line for lst in df["raw_ingredients"] for line in lst]
+df = pd.read_parquet("data/recipes.parquet")
+row = df[df["url"].str.contains("saglikli-mini-pankek")].iloc[0]
 
-raw_names = []
-clean_names = []
+text = row["text"]
+start = text.find("İçin Malzemeler")
+print(repr(text[start:start + 600]))
 
-for line in all_lines:
-    amount, unit, name = parse_ingredient(line)
-    raw_names.append(name)
-    clean_names.append(clean_name(name))
+print("\nRobotun çıkardığı satırlar:")
+for line in extract_ingredient_lines(text):
+    print("  ", line)
 
-empty = clean_names.count("")
-
-print("Farklı ad (temizlik ÖNCESİ):", len(set(raw_names)))
-print("Farklı ad (temizlik SONRASI):", len(set(clean_names)))
-print("Temizlikten sonra boş kalan:", empty)
-
-print("\nTemizlik sonrası en sık 40 ad:")
-for name, count in Counter(clean_names).most_common(40):
-    print(f"{count:5d}  {name}")
-
-# Çok kelimeli adların ilk kelimesi: sıfat adayları
-first_words = Counter(
-    name.split()[0] for name in clean_names if len(name.split()) > 1
-)
-
-print("\nÇok kelimeli adlarda en sık 40 İLK kelime:")
-for word, count in first_words.most_common(40):
-    print(f"{count:5d}  {word}")
+print("\nTemiz malzeme listesi:", list(row["ingredients"]))

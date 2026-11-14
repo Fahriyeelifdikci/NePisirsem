@@ -67,7 +67,7 @@ def to_number(text):
 # --- Birim ayrıştırma ---
 
 UNITS = sorted((
-    "gram", "kilogram", "mililitre", "litre", "ml.", "ml",
+    "gram", "kilogram", "gr.","kg.", "kg", "mililitre", "litre", "ml.", "ml",
     "adet", "paket", "kutu", "kase", "çorba kasesi", "poşet", "şişe",
     "su bardağı", "çay bardağı", "bardak", "kahve fincanı", "fincan",
     "yemek kaşığı", "tatlı kaşığı", "çay kaşığı", "çorba kaşığı",
@@ -106,7 +106,7 @@ PREP_WORDS = (
     "orta boy", "küçük boy", "büyük boy",   # uzunlar önce!
     "orta", "küçük", "büyük",
     "ılık", "sıcak", "soğuk",
-    "rendelenmiş", "haşlanmış","eritilmiş",
+    "rendelenmiş", "haşlanmış","eritilmiş","olgun",
 )
 
 
