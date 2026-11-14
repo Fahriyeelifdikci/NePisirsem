@@ -5,8 +5,7 @@ from sentence_transformers import SentenceTransformer
 MODEL_NAME = "emrecan/bert-base-turkish-cased-mean-nli-stsb-tr"
 
 df = pd.read_parquet("data/recipes.parquet")
-texts = df["ingredients"].apply(", ".join).tolist()
-
+texts = df["ingredients"].apply(lambda ings: ", ".join(sorted(ings))).tolist()
 print("Örnek metin:", texts[0])
 print("Tarif sayısı:", len(texts))
 

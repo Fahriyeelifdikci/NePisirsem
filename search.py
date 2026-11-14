@@ -50,13 +50,31 @@ def has(ingredient, available):
     return False
 
 
-def search(query, top_k=5, candidates=50):
-    """Sorguya en benzer tarifleri bulur ve eksik malzemelerini hesaplar.
-    Sıralama PENALTY ayarına göre yapılır."""
-    have = parse_query(query)
-    available = expand(have) | PANTRY
+def uses_all(ingredients, have):
+    """Tarif, kullanıcının seçtiği HER malzemeyi kullanıyor mu?"""
+    return all(
+        any(has(ingredient, expand({item})) for ingredient in ingredients)
+        for item in have
+    )
 
-    query_vector = model.encode(query, normalize_embeddings=True)
+
+def search(have, top_k=24, candidates=300, max_missing=None,
+           use_pantry=True, require_all=False):
+    """Kullanıcının malzemelerine en uygun tarifleri bulur.
+
+    have        : kullanıcının malzemeleri (temiz adlar)
+    top_k       : en fazla kaç tarif döndürülsün
+    candidates  : modelden kaç aday alınsın (filtrelerden önce)
+    max_missing : en fazla kaç eksik malzemeye izin verilsin (None = sınırsız)
+    use_pantry  : tuz, su gibi temel malzemeler evde var sayılsın mı
+    require_all : tarif, seçilen malzemelerin hepsini kullanmak zorunda mı
+    """
+    have = set(have)
+    available = expand(have)
+    if use_pantry:
+        available |= PANTRY
+
+    query_vector = model.encode(", ".join(sorted(have)), normalize_embeddings=True)
     scores = vectors @ query_vector
     best = np.argsort(-scores)[:candidates]
 
@@ -66,8 +84,14 @@ def search(query, top_k=5, candidates=50):
         lambda ingredients: [i for i in ingredients if not has(i, available)]
     )
     results["n_missing"] = results["missing"].apply(len)
-
+    results["n_total"] = results["ingredients"].apply(len)
     results["final"] = results["score"] - PENALTY * results["n_missing"]
+
+    if max_missing is not None:
+        results = results[results["n_missing"] <= max_missing]
+    if require_all:
+        results = results[results["ingredients"].apply(lambda ings: uses_all(ings, have))]
+
     results = results.sort_values(["final", "n_missing"], ascending=[False, True])
     return results.head(top_k)
 
@@ -77,9 +101,10 @@ if __name__ == "__main__":
         query = input("\nElindeki malzemeler (çıkmak için Enter): ")
         if not query:
             break
-        for _, row in search(query).iterrows():
-            print(f"\n{row['score']:.2f}  {row['url']}")
+        for _, row in search(parse_query(query), top_k=5).iterrows():
+            n_have = row["n_total"] - row["n_missing"]
+            print(f"\n{row['title']}  ({n_have}/{row['n_total']} malzeme sende)")
             if row["n_missing"] == 0:
-                print("       ✅ Hepsi var!")
+                print("   ✅ Hepsi var!")
             else:
-                print("       ❌ Eksik:", ", ".join(row["missing"]))
+                print("   ❌ Eksik:", ", ".join(row["missing"]))
