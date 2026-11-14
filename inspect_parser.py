@@ -1,15 +1,19 @@
 import pandas as pd
-from recipe_parser import extract_ingredient_lines
+from categories import categorize
 
 df = pd.read_parquet("data/recipes.parquet")
-row = df[df["url"].str.contains("saglikli-mini-pankek")].iloc[0]
+df["category"] = df["title"].apply(lambda t: categorize(t)[1])
 
-text = row["text"]
-start = text.find("İçin Malzemeler")
-print(repr(text[start:start + 600]))
+print(df["category"].value_counts())
 
-print("\nRobotun çıkardığı satırlar:")
-for line in extract_ingredient_lines(text):
-    print("  ", line)
+print("\n'Diğer'den rastgele 25 tarif:")
+print(df[df["category"] == "Diğer"]["title"].sample(25, random_state=0).to_string())
 
-print("\nTemiz malzeme listesi:", list(row["ingredients"]))
+from collections import Counter
+from recipe_parser import clean_name
+
+other = df[df["category"] == "Diğer"]["title"]
+words = Counter(w for t in other for w in clean_name(t).split())
+print("\n'Diğer'de en sık 40 kelime:")
+for w, c in words.most_common(40):
+    print(f"{c:5d}  {w}")
