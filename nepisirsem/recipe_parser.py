@@ -38,10 +38,8 @@ def extract_ingredient_lines(text: str) -> list[str]:
 
 # Satırın başındaki miktarı yakalayan kalıp:
 # ya rakam/virgül/eğik çizgi/tire grubu, ya "Yarım" kelimesi, ya da ¾ karakteri
-NUMBER = re.compile(r"^([\d.,/-]+|Yarım|¾)")
-
-WORD_NUMBERS = {"Yarım": 0.5, "¾": 0.75}
-
+NUMBER = re.compile(r"^([\d.,/-]+|[Yy]arım|[Çç]eyrek|¾)")
+WORD_NUMBERS = {"yarım": 0.5, "çeyrek": 0.25, "¾": 0.75}
 
 def to_number(text):
     """Yakalanan miktar metnini sayıya çevirir: "1,5" → 1.5
@@ -49,8 +47,8 @@ def to_number(text):
     """
     text = text.strip("-/")
 
-    if text in WORD_NUMBERS:
-        return WORD_NUMBERS[text]
+    if text.lower() in WORD_NUMBERS:
+        return WORD_NUMBERS[text.lower()]
 
     try:
         if "-" in text:                          # aralık: "2-3" → 2.5

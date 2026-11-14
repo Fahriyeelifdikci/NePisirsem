@@ -33,6 +33,8 @@ def test_to_number_bozuk_girdide_none_doner(text):
     ("tuz", (None, None, "tuz")),
     ("1 gr un", (1.0, "gr", "un")),
     ("yarım adet limon", (0.5, "adet", "limon")),
+    ("çeyrek demet maydanoz", (0.25, "demet", "maydanoz")),
+    ("Çeyrekdemetdereotu", (0.25, "demet", "dereotu")),
 ])
 def test_parse_ingredient(line, expected):
     assert parse_ingredient(line) == expected
