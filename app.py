@@ -64,8 +64,10 @@ if results.empty:
     st.warning("Bu ayarlarla tarif bulunamadı. Eksik malzeme sınırını artırmayı dene.")
     st.stop()
 
-results["cat_key"] = results["title"].apply(lambda t: categorize(t)[0])
-results["cat_label"] = results["title"].apply(lambda t: categorize(t)[1])
+cats = results.apply(lambda row: categorize(row["title"], row["ingredients"]), axis=1)
+results["cat_key"] = cats.str[0]
+results["cat_label"] = cats.str[1]
+
 
 summary = (
     results.groupby(["cat_key", "cat_label"], sort=False)

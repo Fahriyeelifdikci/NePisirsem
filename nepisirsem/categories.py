@@ -27,19 +27,49 @@ CATEGORIES = [
     ("balik", "Balık ve deniz ürünleri", {"balık", "balığı", "somon", "levrek", "çupra", "hamsi",
                                           "karides", "midye", "ton", "alabalık"}),
     ("tavuk", "Tavuk", {"tavuk", "tavuklu", "kanat"}),
-    ("et", "Et ve köfte", {"köfte", "köftesi", "kebap", "kebabı", "kıymalı", "dana", "kuzu"}),
+    ("et", "Et ve köfte", {"köfte", "köftesi", "kebap", "kebabı", "kıymalı", "dana", "kuzu", "etli"}),
     ("sebze", "Sebze ve zeytinyağlı", {"zeytinyağlı", "sebzeli", "sebze", "ıspanaklı", "dolma", "dolması",
                                        "sarma", "sarması", "mercimek", "nohut", "fasulye", "karnıyarık",
                                        "patlıcan", "graten", "mücver", "brokoli", "karnabahar", "pırasa",
                                        "patates", "kabak", "bamya", "biber"}),
 ]
+
 DEFAULT = ("diger", "Diğer")
 
+# Başlıkta kelime kelime bakınca yanılan yemekler: önce bunlar kontrol edilir.
+# (kalıp, kategori, şart koşulan malzeme ya da None)
+PHRASES = [
+    ("tavuk göğsü", "tatli", "şeker"),   # tatlı olan şekerlidir; "Fırında Tavuk Göğsü" tavuk kalır
+    ("çiğ köfte", "meze", None),
+    ("mercimek köftesi", "meze", None),
+]
 
-def categorize(title):
-    """Tarif adından kategori bulur: 'Kekikli Tavuk' → ('tavuk', 'Tavuk')"""
-    words = set(clean_name(title).split())
+# "Et ve köfte" kategorisi için tarifte gerçekten et olmalı
+MEAT_WORDS = {"et", "eti", "kıyma", "kıyması", "dana", "kuzu", "kuşbaşı", "bonfile", "biftek", "antrikot"}
+
+LABELS = {key: label for key, label, _ in CATEGORIES}
+
+
+def has_meat(ingredients):
+    """Malzemelerden en az biri et mi? ["kuşbaşı dana eti", "soğan"] → True"""
+    return any(word in MEAT_WORDS for ing in ingredients for word in ing.split())
+
+
+def categorize(title, ingredients=None):
+    """Tarif adından (ve varsa malzemelerden) kategori bulur.
+    'Kekikli Tavuk'               → ('tavuk', 'Tavuk')
+    'Patates Köftesi', [patates…] → et yok, 'Et ve köfte' atlanır → ('sebze', ...)
+    ingredients=None: malzemeler bilinmiyor, et kontrolü yapılmaz
+    """
+    name = clean_name(title)
+    for phrase, key, required in PHRASES:
+        if phrase in name and (required is None or (ingredients and required in ingredients)):
+            return key, LABELS[key]
+
+    words = set(name.split())
     for key, label, keywords in CATEGORIES:
+        if key == "et" and ingredients is not None and not has_meat(ingredients):
+            continue                                  # "köfte" diyor ama et yok
         if words & keywords:
             return key, label
     return DEFAULT
