@@ -7,6 +7,10 @@ MODEL_NAME = "emrecan/bert-base-turkish-cased-mean-nli-stsb-tr"
 
 PANTRY = {"tuz", "su", "karabiber", "sıvı yağ", "zeytinyağı", "pul biber", "şeker"}
 
+# Her eksik malzemenin benzerlik puanından ne kadar düşüreceği.
+# 0 → sadece benzerlik (B kuralı), 1 → önce eksik sayısı (A kuralı)
+PENALTY = 0
+
 # "X varsa bunlar da vardır": bir malzemenin parçaları ya da ondan hemen elde edilenler
 DERIVED = {
     "yumurta": ["yumurta akı", "yumurta sarısı"],
@@ -47,8 +51,8 @@ def has(ingredient, available):
 
 
 def search(query, top_k=5, candidates=50):
-    """Önce en benzer `candidates` tarifi bulur,
-    sonra eksik malzemesi az olanı üste alarak sıralar."""
+    """Sorguya en benzer tarifleri bulur ve eksik malzemelerini hesaplar.
+    Sıralama PENALTY ayarına göre yapılır."""
     have = parse_query(query)
     available = expand(have) | PANTRY
 
@@ -63,7 +67,8 @@ def search(query, top_k=5, candidates=50):
     )
     results["n_missing"] = results["missing"].apply(len)
 
-    results = results.sort_values(["n_missing", "score"], ascending=[True, False])
+    results["final"] = results["score"] - PENALTY * results["n_missing"]
+    results = results.sort_values(["final", "n_missing"], ascending=[False, True])
     return results.head(top_k)
 
 
