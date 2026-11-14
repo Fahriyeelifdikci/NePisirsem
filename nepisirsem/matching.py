@@ -25,16 +25,34 @@ def expand(have):
     return result
 
 
+# Genel ad → onun yerine geçebilecek türleri (iki yönde de geçerli):
+# tarif "peynir" diyorsa kaşar da olur; kullanıcı "peynir" seçtiyse kaşarlı tarif de olur.
+SUBTYPES = {
+    "peynir": {"beyaz peynir", "kaşar peyniri", "eski kaşar peyniri", "lor peyniri",
+               "tulum peyniri", "ezine peyniri", "çökelek"},
+    "biber": {"kapya biber", "yeşil biber", "sivri biber", "çarliston biber", "dolmalık biber"},
+}
+
+# Bu kelimeleri içeren malzeme, sondaki kelimenin bir türü değil, işlenmiş hâlidir:
+# "pul biber" bir biber çeşidi değil, baharattır.
+FORM_WORDS = {"pul", "toz"}
+
+
 def has(ingredient, available):
     """Elimizdekiler bu malzemeyi karşılıyor mu?
-    "yağlı kıyma", {"kıyma"} → True
-    "limon suyu",  {"su"}    → False
+    "yağlı kıyma",   {"kıyma"}         → True   (sondaki kelime aynı)
+    "peynir",        {"kaşar peyniri"} → True   (SUBTYPES)
+    "pul biber",     {"biber"}         → False  (FORM_WORDS)
+    "limon suyu",    {"su"}            → False
     """
     for item in available:
-        if ingredient == item or ingredient.endswith(" " + item):
+        if ingredient == item:
+            return True
+        if ingredient.endswith(" " + item) and not FORM_WORDS & set(ingredient.split()):
+            return True
+        if ingredient in SUBTYPES.get(item, ()) or item in SUBTYPES.get(ingredient, ()):
             return True
     return False
-
 
 def missing(ingredients, have, pantry=()):
     """Tarifin, kullanıcıda olmayan malzemelerini döndürür.

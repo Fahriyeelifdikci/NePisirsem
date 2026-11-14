@@ -129,5 +129,9 @@ else:
                 if row["n_missing"] == 0:
                     st.markdown(":green-background[✅ Hemen yapabilirsin]")
                 else:
-                    st.markdown(" ".join(f":red-background[{m}]" for m in row["missing"]))
+                    amounts = dict(zip(row["ingredients"], row["amounts"]))
+                    st.markdown(" ".join(
+                        f":red-background[{m} · {amounts[m]}]" if amounts.get(m) else f":red-background[{m}]"
+                        for m in row["missing"]
+                    ))                
                 st.link_button("Tarife git →", row["url"])

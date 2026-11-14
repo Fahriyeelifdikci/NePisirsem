@@ -8,21 +8,21 @@ from nepisirsem.matching import has, missing, uses_all
     ("kıyma", {"kıyma"}, True),
     ("yağlı kıyma", {"kıyma"}, True),
     ("beyaz peynir", {"peynir"}, True),
+    # eskiden xfail olanlar
+    ("kaşar peyniri", {"peynir"}, True),
+    ("pul biber", {"biber"}, False),
+    # genel ↔ tür
+    ("peynir", {"kaşar peyniri"}, True),
+    ("biber", {"kapya biber"}, True),
+    ("biber", {"pul biber"}, False),
+    ("kırmızı toz biber", {"biber"}, False),
+    # bilinçli olarak eşleşmeyenler
     ("limon suyu", {"su"}, False),
+    ("mısır unu", {"un"}, False),
+    ("peynir", {"labne"}, False),
 ])
 def test_has(ingredient, available, expected):
     assert has(ingredient, available) == expected
-
-
-@pytest.mark.xfail(reason="Bilinen sınırlama: Türkçe iyelik eki (peynir → peyniri) tanınmıyor")
-def test_has_iyelik_eki():
-    assert has("kaşar peyniri", {"peynir"})
-
-
-@pytest.mark.xfail(reason="Bilinen hata: 'biber' (taze) 'pul biber'i de karşılıyor sayılıyor")
-def test_has_pul_biber_taze_biber_degildir():
-    assert not has("pul biber", {"biber"})
-
 
 # ---------- missing ----------
 

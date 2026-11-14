@@ -1,4 +1,5 @@
 import re
+from nepisirsem.synonyms import canonical
 
 STOP_MARKERS = (
     "Eksik malzemeleri",
@@ -145,3 +146,37 @@ def clean_name(name):
     name = name.replace("İ", "i").replace("I", "ı").lower()   # Türkçe küçük harf
     name = name.split(" veya ")[0]                            # "tereyağı veya margarin" → ilk seçenek
     return strip_prep_words(name.strip())
+
+
+
+# --- Miktar metni ve satır listesi ---
+
+FRACTIONS = {0.25: "çeyrek", 0.5: "yarım", 0.75: "¾"}
+
+
+def format_amount(amount, unit):
+    """Ayrıştırılmış miktarı okunur metne çevirir.
+    (2.0, "su bardağı") → "2 su bardağı",  (1.5, None) → "1,5",  (0.5, "adet") → "yarım adet"
+    """
+    if amount is None:
+        number = ""
+    elif amount in FRACTIONS:
+        number = FRACTIONS[amount]
+    elif amount == int(amount):
+        number = str(int(amount))
+    else:
+        number = f"{amount:g}".replace(".", ",")
+    return " ".join(part for part in (number, unit) if part)
+
+
+def parse_ingredients(lines):
+    """Ham satırlardan (ad, miktar metni) çiftleri üretir; aynı malzeme iki kez geçerse ilki kalır.
+    ["2su bardağıun", "1adetyumurta"] → [("un", "2 su bardağı"), ("yumurta", "1 adet")]
+    """
+    result = {}
+    for line in lines:
+        amount, unit, name = parse_ingredient(line)
+        name = canonical(clean_name(name))
+        if name and name not in result:
+            result[name] = format_amount(amount, unit)
+    return list(result.items())
