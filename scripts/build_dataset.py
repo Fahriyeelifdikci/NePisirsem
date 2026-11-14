@@ -33,12 +33,11 @@ df["ingredients"] = df["raw_ingredients"].apply(ingredient_names)
 df["url"] = df["metadata"].apply(lambda m: m["url"])
 df["title"] = df.apply(lambda row: extract_title(row["text"], row["url"]), axis=1)
 
-out = df[["id", "url", "title", "text", "raw_ingredients", "ingredients"]]
-
+out = df[["id", "url", "title", "ingredients"]]
 Path("data").mkdir(exist_ok=True)
 out.to_parquet("data/recipes.parquet", index=False)
 
-fallback = (~out["text"].str.contains(" Tarifi Nasıl Yapılır?", regex=False)).sum()
+fallback = (~df["text"].str.contains(" Tarifi Nasıl Yapılır?", regex=False)).sum()
 
 print(len(out), "tarif kaydedildi → data/recipes.parquet")
 print("Adı metinden bulunamayan (URL'den üretilen):", fallback)

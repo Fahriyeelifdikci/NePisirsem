@@ -20,7 +20,7 @@ DERIVED = {
 
 print("Yükleniyor...")
 df = pd.read_parquet("data/recipes.parquet")
-vectors = np.load("data/recipe_vectors.npy")
+vectors = np.load("data/recipe_vectors.npy").astype(np.float32)
 model = SentenceTransformer(MODEL_NAME)
 
 

@@ -17,5 +17,5 @@ vectors = model.encode(
     normalize_embeddings=True,
 )
 
-np.save("data/recipe_vectors.npy", vectors)
+np.save("data/recipe_vectors.npy", vectors.astype(np.float16))
 print("Vektör tablosu:", vectors.shape, "→ data/recipe_vectors.npy")
