@@ -35,10 +35,13 @@ def test_to_number_bozuk_girdide_none_doner(text):
     ("yarım adet limon", (0.5, "adet", "limon")),
     ("çeyrek demet maydanoz", (0.25, "demet", "maydanoz")),
     ("Çeyrekdemetdereotu", (0.25, "demet", "dereotu")),
+    ("2 tepeleme yemek kaşığıun", (2.0, "yemek kaşığı", "un")),
+    ("1 büyük su bardağı süt", (1.0, "su bardağı", "süt")),
 ])
 def test_parse_ingredient(line, expected):
     assert parse_ingredient(line) == expected
 
+    
 
 # ---------- clean_name ----------
 

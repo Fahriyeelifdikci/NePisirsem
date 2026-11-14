@@ -93,15 +93,20 @@ def parse_ingredient(line):
 
     amount = to_number(match.group())
     rest = line[match.end():].strip()
-    for modifier in MODIFIERS:
-        rest = rest.removeprefix(modifier)
+
+    stripped = rest
+    for modifier in MODIFIERS:                   # "tepeleme yemek kaşığı" → "yemek kaşığı"
+        stripped = stripped.removeprefix(modifier)
 
     for unit in UNITS:                           # uzundan kısaya her birimi dene
-        if rest.startswith(unit):
-            name = rest[len(unit):].strip()      #   birimden sonrası = ad
+        if stripped.startswith(unit):
+            name = stripped[len(unit):].strip()  #   birimden sonrası = ad
             return amount, unit, name
 
-    return amount, None, rest       
+    # Birim yoksa sıfat birime değil malzemeye aitti ("büyük boy patates"):
+    # silmeden bırak, clean_name temizlesin.
+    return amount, None, rest
+
 
 # --- Ad temizleme ---
 PARENS = re.compile(r"\(.*?\)")
