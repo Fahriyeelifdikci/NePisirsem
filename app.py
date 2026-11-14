@@ -4,15 +4,18 @@ from pathlib import Path
 import streamlit as st
 from nepisirsem.search import search, df
 from nepisirsem.categories import categorize
+from nepisirsem.matching import PANTRY_OPTIONS, DEFAULT_PANTRY
 
 st.set_page_config(page_title="NePişirsem", page_icon="🍳", layout="wide")
 st.markdown(f"<style>{Path('assets/style.css').read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
 @st.cache_data
 def ingredient_options():
-    """Bütün malzeme adlarını sıklık sırasıyla ve en popüler 20'yi döndürür."""
+    """Bütün malzeme adlarını sıklık sırasıyla ve en popüler 20'yi döndürür.
+    Pantry malzemeleri (tuz, su...) ayrı bir yerde seçildiği için listeye girmez.
+    """    
     counts = Counter(i for ings in df["ingredients"] for i in ings)
-    names = [name for name, _ in counts.most_common()]
+    names = [name for name, _ in counts.most_common() if name not in PANTRY_OPTIONS]    
     return names, names[:20]
 
 
@@ -34,7 +37,11 @@ with st.sidebar:
     picked_search = st.multiselect("Diğer malzemeler", all_names, placeholder="Ara: kabak, nohut...")
     st.divider()
     max_missing = st.slider("En fazla eksik malzeme", 0, 5, 2)
-    use_pantry = st.checkbox("Tuz, su, yağ evde var", value=True)
+    pantry_common = st.pills("Evde hep olanlar", PANTRY_OPTIONS, selection_mode="multi",
+                             default=list(DEFAULT_PANTRY)) or []
+    pantry_extra = st.multiselect("Evde hep olan başka bir şey", all_names,
+                                  placeholder="Ara: un, salça...")
+    pantry = set(pantry_common) | set(pantry_extra)   
     require_all = st.checkbox("Seçtiklerimin hepsini kullansın")
 
 have = set(picked_popular) | set(picked_search)
@@ -49,7 +56,7 @@ results = search(
     top_k=300,
     candidates=3000,
     max_missing=max_missing,
-    use_pantry=use_pantry,
+    pantry=pantry,
     require_all=require_all,
 )
 
