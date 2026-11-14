@@ -47,23 +47,28 @@ def to_number(text):
     """Yakalanan miktar metnini sayıya çevirir: "1,5" → 1.5
     Çeviremezse None döndürür (miktar bilinmiyor).
     """
-    text = text.strip("-/")                  # YENİ: baştaki/sondaki tire ve eğik çizgiyi sil
+    text = text.strip("-/")
 
     if text in WORD_NUMBERS:
         return WORD_NUMBERS[text]
 
-    if "-" in text:
-        parts = text.split("-")
-        if len(parts) != 2:                  # YENİ: tam 2 parça değilse
-            return None                      #   "bilmiyorum" de, uydurma
-        low, high = parts
-        return (to_number(low) + to_number(high)) / 2
+    try:
+        if "-" in text:                          # aralık: "2-3" → 2.5
+            low, high = text.split("-")          #   2'den fazla parça → ValueError
+            low, high = to_number(low), to_number(high)
+            if low is None or high is None:      #   parçalardan biri bozuksa
+                return None                      #   ortalama alınamaz
+            return (low + high) / 2
 
-    if "/" in text:
-        top, bottom = text.split("/")
-        return float(top) / float(bottom)
+        if "/" in text:                          # kesir: "1/2" → 0.5
+            top, bottom = text.split("/")
+            return float(top) / float(bottom)
 
-    return float(text.replace(",", "."))
+        return float(text.replace(",", "."))
+    except (ValueError, ZeroDivisionError):
+        return None
+    
+    
 # --- Birim ayrıştırma ---
 
 UNITS = sorted((

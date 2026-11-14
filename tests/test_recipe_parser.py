@@ -17,7 +17,8 @@ def test_to_number_gecerli_girdiler(text, expected):
     assert to_number(text) == expected
 
 
-@pytest.mark.parametrize("text", ["1/2/3", "-", ".", "1/0", "1-2-3"])
+@pytest.mark.parametrize("text", ["1/2/3", "-", ".", "1/0", "1-2-3", "1-."])
+
 def test_to_number_bozuk_girdide_none_doner(text):
     assert to_number(text) is None
 
