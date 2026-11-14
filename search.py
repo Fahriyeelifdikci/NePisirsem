@@ -72,13 +72,14 @@ def search(query, top_k=5, candidates=50):
     return results.head(top_k)
 
 
-while True:
-    query = input("\nElindeki malzemeler (çıkmak için Enter): ")
-    if not query:
-        break
-    for _, row in search(query).iterrows():
-        print(f"\n{row['score']:.2f}  {row['url']}")
-        if row["n_missing"] == 0:
-            print("       ✅ Hepsi var!")
-        else:
-            print("       ❌ Eksik:", ", ".join(row["missing"]))
+if __name__ == "__main__":
+    while True:
+        query = input("\nElindeki malzemeler (çıkmak için Enter): ")
+        if not query:
+            break
+        for _, row in search(query).iterrows():
+            print(f"\n{row['score']:.2f}  {row['url']}")
+            if row["n_missing"] == 0:
+                print("       ✅ Hepsi var!")
+            else:
+                print("       ❌ Eksik:", ", ".join(row["missing"]))
