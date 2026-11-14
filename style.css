@@ -1,0 +1,50 @@
+/* ---------- Akan gradient arka plan ---------- */
+.stApp {
+    background: linear-gradient(-45deg, #1b1a2e, #3d1f3a, #5a2b2b, #1f3340);
+    background-size: 400% 400%;
+    animation: gradientFlow 20s ease infinite;
+}
+
+@keyframes gradientFlow {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Üst bar ve kenar çubuğu: saydam / buzlu cam */
+[data-testid="stHeader"] {
+    background: transparent;
+}
+
+[data-testid="stSidebar"] {
+    background: rgba(15, 12, 25, 0.55);
+    backdrop-filter: blur(14px);
+}
+
+/* ---------- Cam kartlar ---------- */
+[class*="st-key-card_"] {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 18px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeUp 0.5s ease both;
+}
+
+[class*="st-key-card_"]:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Gradient başlık ---------- */
+h1 {
+    background: linear-gradient(90deg, #FFB36B, #FF6B8B);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+}
