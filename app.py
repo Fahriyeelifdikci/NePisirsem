@@ -2,12 +2,11 @@ from collections import Counter
 from pathlib import Path
 
 import streamlit as st
-from search import search, df
-from categories import categorize
+from nepisirsem.search import search, df
+from nepisirsem.categories import categorize
 
 st.set_page_config(page_title="NePişirsem", page_icon="🍳", layout="wide")
-st.markdown(f"<style>{Path('style.css').read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
-
+st.markdown(f"<style>{Path('assets/style.css').read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
 @st.cache_data
 def ingredient_options():

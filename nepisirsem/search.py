@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer
-from recipe_parser import clean_name
+from nepisirsem.recipe_parser import clean_name
 
 MODEL_NAME = "emrecan/bert-base-turkish-cased-mean-nli-stsb-tr"
 

@@ -1,4 +1,4 @@
-from recipe_parser import clean_name
+from nepisirsem.recipe_parser import clean_name
 
 # (dosya adı, görünen ad, anahtar kelimeler) — sıra önemli: ilk eşleşen kazanır
 CATEGORIES = [

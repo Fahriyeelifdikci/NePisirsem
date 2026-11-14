@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 from datasets import load_dataset
-from recipe_parser import extract_ingredient_lines, parse_ingredient, clean_name
+from nepisirsem.recipe_parser import extract_ingredient_lines, parse_ingredient, clean_name
 
 TITLE = re.compile(r"([^\n]+?) Tarifi Nasıl Yapılır\?")
 
