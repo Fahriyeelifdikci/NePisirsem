@@ -110,27 +110,31 @@ def parse_ingredient(line):
 
 # --- Ad temizleme ---
 PARENS = re.compile(r"\(.*?\)")
+SIZES = ("orta boy", "küçük boy", "büyük boy")   # veride boşluksuz da geliyor: "orta boysoğan"
 PREP_WORDS = (
-    "orta boy", "küçük boy", "büyük boy",   # uzunlar önce!
     "orta", "küçük", "büyük",
-    "ılık", "sıcak", "soğuk",
-    "rendelenmiş", "haşlanmış","eritilmiş","olgun",
+    "ılık", "sıcak", "soğuk", "oda sıcaklığında",
+    "rendelenmiş", "haşlanmış", "eritilmiş", "olgun",
 )
 
 
 def strip_prep_words(name):
-    """Baştaki hal sıfatlarını siler.
+    """Baştaki boy ve hal sıfatlarını siler.
     "küçük boy haşlanmış patates" → "patates"
+    "orta boysoğan"               → "soğan"
     """
     found = True
     while found:                                 # silinecek bir şey kaldığı sürece tekrarla
         found = False
-        for word in PREP_WORDS:
-            if name.startswith(word + " "):      # sıfat + boşluk ile başlıyorsa
-                name = name[len(word) + 1:]      #   sıfatı ve boşluğu kes
+        for size in SIZES:                       # "orta boy": arkası boşluk olmasa da sil
+            if name.startswith(size):
+                name = name[len(size):].lstrip()
+                found = True
+        for word in PREP_WORDS:                  # diğerleri: sadece arkası boşluksa
+            if name.startswith(word + " "):
+                name = name[len(word) + 1:]
                 found = True
     return name
-
 def clean_name(name):
     """Malzeme adını aramaya uygun hale getirir.
     "İzmir tulum peyniri(rendelenmiş)" → "izmir tulum peyniri"

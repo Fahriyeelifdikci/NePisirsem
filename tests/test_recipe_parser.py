@@ -50,7 +50,11 @@ def test_parse_ingredient(line, expected):
     ("İzmir tulum peyniri(rendelenmiş)", "izmir tulum peyniri"),
     ("(10 gram) kabartma tozu", "kabartma tozu"),
     ("küçük boy haşlanmış patates", "patates"),
-])
+    ("orta boysoğan", "soğan"),
+    ("büyük boykuru soğan", "kuru soğan"),
+    ("oda sıcaklığında tereyağı", "tereyağı"),
+    ("boyoz", "boyoz"),
+    ("ortanca", "ortanca"),])
 def test_clean_name(raw, expected):
     assert clean_name(raw) == expected
 
