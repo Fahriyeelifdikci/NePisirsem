@@ -56,6 +56,8 @@ METHODS = {
     "embedding (şu anki)": embedding_scores,
     "kapsama (baseline)": coverage_scores,
     "hibrit (0.5 / 0.5)": hybrid_scores,
+    "hibrit (0.7 / 0.3)": lambda engine, have: hybrid_scores(engine, have, weight=0.7),
+    "hibrit (0.3 / 0.7)": lambda engine, have: hybrid_scores(engine, have, weight=0.3),
 }
 
 
