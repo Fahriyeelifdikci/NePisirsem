@@ -35,9 +35,7 @@ def make_queries(df, n=200, keep=0.6, seed=42):
 
 def embedding_scores(engine, have):
     """Şu anki yöntem: malzeme listelerinin anlamsal benzerliği."""
-    query = engine.model.encode(", ".join(sorted(have)), normalize_embeddings=True)
-    return engine.vectors @ query
-
+    return engine.embedding_scores(have)
 
 def coverage_scores(engine, have):
     """Basit taban çizgisi (baseline): tarifin malzemelerinin yüzde kaçı sende var?"""

@@ -7,6 +7,10 @@ from nepisirsem.matching import DEFAULT_PANTRY, missing, uses_all
 MODEL_NAME = "emrecan/bert-base-turkish-cased-mean-nli-stsb-tr"
 
 
+# Sıralama puanı = 0.7 × anlamsal benzerlik + 0.3 × kapsama (malzemelerin ne kadarı sende).
+# Ağırlık değerlendirmeyle seçildi (scripts/evaluate.py, seed 42) ve yeni sorgularla doğrulandı (seed 7).
+EMBEDDING_WEIGHT = 0.7
+
 class RecipeSearch:
     """Tarif arama motoru: veri, vektörler ve model bir arada.
 
@@ -27,30 +31,30 @@ class RecipeSearch:
         vectors = np.load(data_dir / "recipe_vectors.npy").astype(np.float32)
         return cls(df, vectors, SentenceTransformer(model_name))
 
-    def search(self, have, top_k=24, candidates=300, max_missing=None,
-               pantry=(), require_all=False):
+    def embedding_scores(self, have):
+        """Her tarif için, malzeme listesinin kullanıcınınkine anlamca ne kadar benzediği."""
+        query = self.model.encode(", ".join(sorted(have)), normalize_embeddings=True)
+        return self.vectors @ query
+
+    def search(self, have, top_k=24, max_missing=None, pantry=(), require_all=False):
         """Kullanıcının malzemelerine en uygun tarifleri bulur.
 
         have        : kullanıcının malzemeleri (temiz adlar)
         top_k       : en fazla kaç tarif döndürülsün
-        candidates  : modelden kaç aday alınsın (filtrelerden önce)
         max_missing : en fazla kaç eksik malzemeye izin verilsin (None = sınırsız)
         pantry      : kullanıcının "evde hep var" dediği temel malzemeler
         require_all : tarif, seçilen malzemelerin hepsini kullanmak zorunda mı
         """
         have = set(have)
 
-        query_vector = self.model.encode(", ".join(sorted(have)), normalize_embeddings=True)
-        scores = self.vectors @ query_vector
-        best = np.argsort(-scores)[:candidates]
-
-        results = self.df.iloc[best].copy()
-        results["score"] = scores[best]
-        results["missing"] = results["ingredients"].apply(
-            lambda ingredients: missing(ingredients, have, pantry)
-        )
+        results = self.df.copy()                          # bütün tarifler: aday sınırı yok
+        results["missing"] = [missing(ings, have, pantry) for ings in results["ingredients"]]
         results["n_missing"] = results["missing"].apply(len)
         results["n_total"] = results["ingredients"].apply(len)
+
+        coverage = 1 - results["n_missing"] / results["n_total"]
+        results["score"] = (EMBEDDING_WEIGHT * self.embedding_scores(have)
+                            + (1 - EMBEDDING_WEIGHT) * coverage)
 
         if max_missing is not None:
             results = results[results["n_missing"] <= max_missing]
@@ -59,7 +63,6 @@ class RecipeSearch:
 
         results = results.sort_values("score", ascending=False)
         return results.head(top_k)
-
 
 def parse_query(query):
     """'Yumurta, un , süt' → {'yumurta', 'un', 'süt'}"""

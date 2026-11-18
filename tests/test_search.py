@@ -23,10 +23,9 @@ def engine():
     return RecipeSearch(df, vectors, FakeModel())
 
 
-def test_sonuclar_benzerlige_gore_sirali(engine):
+def test_sonuclar_puana_gore_sirali(engine):
     results = engine.search({"yumurta"})
     assert list(results["title"]) == ["Kek", "Omlet", "Pilav"]
-
 
 def test_max_missing_filtreler(engine):
     results = engine.search({"yumurta"}, max_missing=1)
@@ -41,3 +40,16 @@ def test_pantry_eksik_sayisini_dusurur(engine):
 def test_require_all(engine):
     results = engine.search({"yumurta", "un"}, require_all=True)
     assert list(results["title"]) == ["Kek"]
+
+
+
+def test_kapsama_esit_benzerlikte_siralamayi_belirler():
+    """Benzerlik aynıysa, malzemelerinin daha çoğu sende olan tarif önde olmalı."""
+    df = pd.DataFrame({
+        "title": ["Çok eksikli", "Az eksikli"],          # bilerek ters sırada
+        "ingredients": [["yumurta", "kakao", "fındık"], ["yumurta", "un"]],
+    })
+    vectors = np.array([[0.5, 0.5], [0.5, 0.5]], dtype=np.float32)
+    engine = RecipeSearch(df, vectors, FakeModel())
+    results = engine.search({"yumurta", "un"})
+    assert list(results["title"]) == ["Az eksikli", "Çok eksikli"]

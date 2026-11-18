@@ -65,7 +65,6 @@ if not have:
 results = engine.search(
     have,
     top_k=300,
-    candidates=3000,
     max_missing=max_missing,
     pantry=pantry,
     require_all=require_all,
@@ -84,6 +83,9 @@ summary = (
     .size()
     .reset_index(name="n")
 )
+# En kalabalık kategori önce; "Diğer" ne kadar kalabalık olursa olsun en sonda
+summary["is_other"] = summary["cat_key"] == "diger"
+summary = summary.sort_values(["is_other", "n"], ascending=[True, False])
 
 # Seçili kategori artık sonuçlarda yoksa (malzemeler değiştiyse) kategori ekranına dön
 if st.session_state.category not in set(summary["cat_key"]):
@@ -92,18 +94,18 @@ if st.session_state.category not in set(summary["cat_key"]):
 # ---------- 1. ekran: kategoriler ----------
 if st.session_state.category is None:
     st.subheader("Ne pişirmek istersin?")
-    st.caption(f"{len(results)} tarif, {len(summary)} kategoride")
-
+    st.caption(f"Sana en uygun {len(results)} tarif, {len(summary)} kategoride")
+    
     cols = st.columns(3)
     for i, row in enumerate(summary.itertuples()):
         with cols[i % 3]:
             with st.container(border=True, key=f"card_cat_{row.cat_key}"):
                 image = category_image(row.cat_key)
                 if image:
-                    st.image(image, use_container_width=True)
+                    st.image(image, width="stretch")
                 st.markdown(f"**{row.cat_label}**")
                 st.caption(f"{row.n} tarif")
-                if st.button("Tarifleri gör", key=f"btn_{row.cat_key}", use_container_width=True):
+                if st.button("Tarifleri gör", key=f"btn_{row.cat_key}", width="stretch"):
                     st.session_state.category = row.cat_key
                     st.rerun()
 

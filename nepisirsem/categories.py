@@ -26,7 +26,7 @@ CATEGORIES = [
                                           "tostu", "burger", "sandviç", "kanepe", "dürüm", "wrap"}),
     ("balik", "Balık ve deniz ürünleri", {"balık", "balığı", "somon", "levrek", "çupra", "hamsi",
                                           "karides", "midye", "ton", "alabalık"}),
-    ("tavuk", "Tavuk", {"tavuk", "tavuklu", "kanat"}),
+    ("tavuk", "Tavuk", {"tavuk", "tavuklu", "kanat", "hindi"}),
     ("et", "Et ve köfte", {"köfte", "köftesi", "kebap", "kebabı", "kıymalı", "dana", "kuzu", "etli"}),
     ("sebze", "Sebze ve zeytinyağlı", {"zeytinyağlı", "sebzeli", "sebze", "ıspanaklı", "dolma", "dolması",
                                        "sarma", "sarması", "mercimek", "nohut", "fasulye", "karnıyarık",
@@ -61,6 +61,8 @@ def categorize(title, ingredients=None):
     'Patates Köftesi', [patates…] → et yok, 'Et ve köfte' atlanır → ('sebze', ...)
     ingredients=None: malzemeler bilinmiyor, et kontrolü yapılmaz
     """
+    if ingredients is not None:
+        ingredients = list(ingredients)                # parquet'ten numpy dizisi gelir, listeye çevir
     name = clean_name(title)
     for phrase, key, required in PHRASES:
         if phrase in name and (required is None or (ingredients and required in ingredients)):
