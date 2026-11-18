@@ -1,5 +1,4 @@
-from recipe_parser import parse_ingredient
-
+from nepisirsem.recipe_parser import parse_ingredient
 examples = [
     "100gramtereyağı",
     "1,5su bardağıun",
