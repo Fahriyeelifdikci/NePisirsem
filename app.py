@@ -4,21 +4,20 @@ import streamlit as st
 from nepisirsem.search import RecipeSearch
 from nepisirsem.categories import categorize
 from nepisirsem.matching import PANTRY_OPTIONS, DEFAULT_PANTRY
-from nepisirsem.paths import ASSETS_DIR
-
+from nepisirsem.paths import ASSETS_DIR, DATA_DIR
 st.set_page_config(page_title="NePişirsem", page_icon="🍳", layout="wide")
 st.markdown(f"<style>{(ASSETS_DIR / 'style.css').read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
 
 @st.cache_resource(show_spinner="Tarif motoru hazırlanıyor...")
-def get_engine():
-    """Modeli ve veriyi bir kez yükler; sonraki her etkileşimde aynı nesne kullanılır."""
+def get_engine(data_version):
+    """Modeli ve veriyi bir kez yükler. data_version değişince (veri güncellenince) yeniden yükler."""
     return RecipeSearch.from_files()
 
 
-engine = get_engine()
+data_version = (DATA_DIR / "recipes.parquet").stat().st_mtime
+engine = get_engine(data_version)
 df = engine.df
-
 
 @st.cache_data
 def ingredient_options():
