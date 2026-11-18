@@ -11,7 +11,7 @@ Uygulama her tarif için hangi malzemelerin eksik olduğunu ve ne kadar gerekti�
 
 ## Neden bu projeyi yaptım?
 
-<!-- ✍️ BURAYI SEN YAZACAKSIN: 3-4 cümle, kendi kelimelerinle -->
+Bitirme projemin veri setini beklerken boş durmak yerine baştan sona kendim geliştirebileceğim bir proje yapmak istedim. Fikir çok gündelik bir sorudan çıktı: “Evde şunlar var, ne pişirsem?” Amacım sadece çalışan bir uygulama yapmak değil, bir yapay zekâ projesinin bütün sürecini öğrenmekti: ham veriyi temizlemek, bir dil modeliyle arama yapmak, sonuçları ölçmek ve canlıya almak. En çok şaşırdığım şey, en büyük iyileştirmelerin modelden değil veriden gelmesi oldu. Malzeme adlarındaki küçük yazım sorunlarını düzeltmek, bir tarifin bulunma ihtimalini modeli değiştirmekten daha çok artırdı.
 
 ## Nasıl çalışıyor?
 
